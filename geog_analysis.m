@@ -43,9 +43,9 @@ plotDatasetSlice(CSIRO35_sst,latlim,lonlim,1.5,10);
 
 function [CSIRO35_sst] = load_CSIRO35(latlim,lonlim)
     %% CSIRO mk3.5 raw data & ensemble mean
-    ssts1 = ncread("tas_A1_csiro_mk3_5_00_120-300E_-50-50N_1871_2020_anom.nc","tas");
-    ssts2 = ncread("tas_A1_csiro_mk3_5_01_120-300E_-50-50N_1871_2020_anom.nc","tas");
-    ssts3 = ncread("tas_A1_csiro_mk3_5_02_120-300E_-50-50N_1871_2020_anom.nc","tas");
+    ssts1 = ncread("CMIPdata/tas_A1_csiro_mk3_5_00_120-300E_-50-50N_1871_2020_anom.nc","tas");
+    ssts2 = ncread("CMIPdata/tas_A1_csiro_mk3_5_01_120-300E_-50-50N_1871_2020_anom.nc","tas");
+    ssts3 = ncread("CMIPdata/tas_A1_csiro_mk3_5_02_120-300E_-50-50N_1871_2020_anom.nc","tas");
     
     % get size, make new array, take ensemble mean
     original_size = size(ssts1);
@@ -81,7 +81,7 @@ function [CSIRO35_sst] = load_CSIRO35(latlim,lonlim)
     mask = repmat(mask, [1,1,original_size(3)]);
     CSIRO35_sst(~mask) = nan;
     
-    save("CSIRO35_sst.mat", "CSIRO35_sst");
+    save("CMIPdata/CSIRO35_sst.mat", "CSIRO35_sst");
 
 end
 
