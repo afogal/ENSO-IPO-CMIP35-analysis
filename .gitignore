@@ -3,6 +3,7 @@
 
 # Saved datasets
 *.mat
+*.zip
 
 # OSX / *nix default autosave extension
 *.m~
