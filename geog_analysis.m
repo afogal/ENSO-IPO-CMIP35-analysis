@@ -44,13 +44,19 @@ else
 end    
     
 % plot it
-plotDatasetSlice(CSIRO35_sst,latlim,lonlim,1.5,1000);
-plotDatasetSlice(HadGem1_sst,latlim,lonlim,1.5,1000);
-plotDatasetSlice(CCSM3_sst,latlim,lonlim,1.5,1000);
+% plotDatasetSlice(CSIRO35_sst,latlim,lonlim,1.5,1000);
+% plotDatasetSlice(HadGem1_sst,latlim,lonlim,1.5,1000);
+% plotDatasetSlice(CCSM3_sst,latlim,lonlim,1.5,1000);
+% 
+% plotDatasetSlice(CSIRO36_sst,latlim,lonlim,1.5,1000);
+% plotDatasetSlice(HadGem2_sst,latlim,lonlim,1.5,1000);
+% plotDatasetSlice(CCSM4_sst,latlim,lonlim,1.5,1000);
 
-plotDatasetSlice(CSIRO36_sst,latlim,lonlim,1.5,1000);
-plotDatasetSlice(HadGem2_sst,latlim,lonlim,1.5,1000);
-plotDatasetSlice(CCSM4_sst,latlim,lonlim,1.5,1000);
+%[eofs,eigvs] = get_eofs(CCSM3_sst);
+%plot_eofs(eofs,eigvs,4,latlim,lonlim,1.5);
+
+% Figure 1
+plot_eigspec(CCSM3_sst,"CCSM3",50);
 
 % end main sequence
 
@@ -385,4 +391,56 @@ function plotDatasetSlice(dataset,latlim,lonlim,gridsize,time)
     geoshow(coastlat,coastlon,'Color','k');
     colorbar;
     setm(gca,MLabelParallel="south",MLabelLocation=30);
+end
+
+% plot the top N EOFs
+function plot_eofs(eofs,eigvs,N,latlim,lonlim,gdsize)
+    for i=1:N
+       plotDatasetSlice(eofs,latlim,lonlim,gdsize,i);
+       title(sprintf("EOF %d, Eigen Value %d",i,eigvs(i)));
+    end
+end
+
+% plot eigenvalue spectrum
+% this is figure 1 in the report
+function plot_eigspec(dataset,model,trunc)
+    figure();
+    hold on;
+    
+    [~,eigvs] = get_eofs(dataset);
+    
+    plot(1:trunc, eigvs(1:trunc), "ko");
+    xlabel("Eigenvalue");
+    ylabel("Variance Explained (%)");
+    title(sprintf("Top %d Eigenvalues from %s",trunc,model));
+    
+    saveas(gcf,"figs/eigenvalue_spectrum_ccsm3.png",'png');
+
+end
+
+%% EOF function
+function [eofs,eigvs] = get_eofs(dataset)
+    % Based on a presentation by Shane Elipot, UMiami
+    
+    % we're taking in data as a lat x lon x time  array
+    % but we want a N x time array
+    % using reshape will let us put it into this format
+    % and reshape is one to one invertible so itll put everything back exactly
+    original_size = size(dataset);
+    dataset = reshape(dataset, [original_size(1)*original_size(2),original_size(3)]);
+    
+    dataset(isnan(dataset)) = 0; % SVD doesn't like NaNs or INFs
+
+    dataset = detrend(dataset,'constant');
+    [P,L,~] = svd(dataset,'econ'); % computes the SVD
+    eofs = P*L; % EOF matrix
+    G = ctranspose(L)*L/(original_size(3)-1); % eigenvalue matrix
+    eigvs = diag(G);
+    [eigvs,inds] = sort((eigvs./sum(eigvs)).*100,"descend");
+    eofs = eofs(:,inds); % rearranges EOFs to match sorted eigenvalues
+    eofs = reshape(eofs, original_size);
+    
+    % normalize EOFs
+    eofs = eofs./max(eofs,[],'all');
+
 end
