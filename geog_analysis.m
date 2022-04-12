@@ -17,6 +17,8 @@
 %% init
 close all;
 reprocess_data=0;
+redo_eofs=0;
+redo_tpi=1;
 
 %% main sequence
 
@@ -35,28 +37,99 @@ if reprocess_data
     CSIRO36_sst = load_CSIRO36(latlim,lonlim);
     HadGem2_sst = load_HadGem2(latlim,lonlim);
     CCSM4_sst = load_CCSM4(latlim,lonlim);
-
+    
+    % load observational and reanalysis datasets
+    hadsst_sst = load_hadsst(latlim,lonlim);
+    noaa_sst = load_noaa(latlim,lonlim);
+    
     % save amalgam
-    save("CMIPdata/allmodels_sst.mat", "CSIRO35_sst","CSIRO36_sst", "HadGem1_sst", "HadGem2_sst","CCSM3_sst","CCSM4_sst");
+    save("CMIPdata/allmodels_sst.mat", "CSIRO35_sst","CSIRO36_sst", "HadGem1_sst", "HadGem2_sst","CCSM3_sst","CCSM4_sst","hadsst_sst","noaa_sst");
    
 else
-    load("CMIPdata/allmodels_sst.mat", "CSIRO35_sst","CSIRO36_sst", "HadGem1_sst", "HadGem2_sst","CCSM3_sst","CCSM4_sst");
+    load("CMIPdata/allmodels_sst.mat", "CSIRO35_sst","CSIRO36_sst", "HadGem1_sst", "HadGem2_sst","CCSM3_sst","CCSM4_sst","hadsst_sst","noaa_sst");
 end    
-    
-% plot it
-% plotDatasetSlice(CSIRO35_sst,latlim,lonlim,1.5,1000);
-% plotDatasetSlice(HadGem1_sst,latlim,lonlim,1.5,1000);
-% plotDatasetSlice(CCSM3_sst,latlim,lonlim,1.5,1000);
-% 
-% plotDatasetSlice(CSIRO36_sst,latlim,lonlim,1.5,1000);
-% plotDatasetSlice(HadGem2_sst,latlim,lonlim,1.5,1000);
-% plotDatasetSlice(CCSM4_sst,latlim,lonlim,1.5,1000);
 
-%[eofs,eigvs] = get_eofs(CCSM3_sst);
-%plot_eofs(eofs,eigvs,4,latlim,lonlim,1.5);
+% either save or load eof analysis
+if redo_eofs
+    % comptue all EOFs and save
+    [CCSM3_eofs,CCSM3_eigvs,CCSM3_pcs] = get_eofs(CCSM3_sst);
+    [CCSM4_eofs,CCSM4_eigvs,CCSM4_pcs] = get_eofs(CCSM4_sst);
+
+    [HadGem1_eofs,HadGem1_eigvs,HadGem1_pcs] = get_eofs(HadGem1_sst);
+    [HadGem2_eofs,HadGem2_eigvs,HadGem2_pcs] = get_eofs(HadGem2_sst);
+
+    [CSIRO35_eofs,CSIRO35_eigvs,CSIRO35_pcs] = get_eofs(CSIRO35_sst);
+    [CSIRO36_eofs,CSIRO36_eigvs,CSIRO36_pcs] = get_eofs(CSIRO36_sst);
+
+    [hadsst_eofs,hadsst_eigvs,hadsst_pcs] = get_eofs(hadsst_sst);
+    [noaa_eofs,noaa_eigvs,noaa_pcs] = get_eofs(noaa_sst);
+    
+    save("CMIPdata/allmodels_eofs.mat","CCSM3_eofs","CCSM3_eigvs","CCSM3_pcs","CCSM4_eofs","CCSM4_eigvs","CCSM4_pcs","HadGem1_eofs","HadGem1_eigvs","HadGem1_pcs","HadGem2_eofs","HadGem2_eigvs","HadGem2_pcs","CSIRO35_eofs","CSIRO35_eigvs","CSIRO35_pcs","CSIRO36_eofs","CSIRO36_eigvs","CSIRO36_pcs","hadsst_eofs","hadsst_eigvs","hadsst_pcs","noaa_eofs","noaa_eigvs","noaa_pcs");
+else
+    load("CMIPdata/allmodels_eofs.mat","CCSM3_eofs","CCSM3_eigvs","CCSM3_pcs","CCSM4_eofs","CCSM4_eigvs","CCSM4_pcs","HadGem1_eofs","HadGem1_eigvs","HadGem1_pcs","HadGem2_eofs","HadGem2_eigvs","HadGem2_pcs","CSIRO35_eofs","CSIRO35_eigvs","CSIRO35_pcs","CSIRO36_eofs","CSIRO36_eigvs","CSIRO36_pcs","hadsst_eofs","hadsst_eigvs","hadsst_pcs","noaa_eofs","noaa_eigvs","noaa_pcs");
+end
+
+if redo_tpi
+   
+    [CCSM3_TPI, CCSM3_TPI_filt] = get_tpi(CCSM3_sst,latlim,lonlim);
+    [CCSM4_TPI, CCSM4_TPI_filt] = get_tpi(CCSM4_sst,latlim,lonlim);
+    
+    [CSIRO35_TPI, CSIRO35_TPI_filt] = get_tpi(CSIRO35_sst,latlim,lonlim);
+    [CSIRO36_TPI, CSIRO36_TPI_filt] = get_tpi(CSIRO36_sst,latlim,lonlim);
+    
+    [HadGem1_TPI, HadGem1_TPI_filt] = get_tpi(HadGem1_sst,latlim,lonlim);
+    [HadGem2_TPI, HadGem2_TPI_filt] = get_tpi(HadGem2_sst,latlim,lonlim);
+    
+    [hadsst_TPI, hadsst_TPI_filt] = get_tpi(hadsst_sst,latlim,lonlim);
+    [noaa_TPI, noaa_TPI_filt] = get_tpi(noaa_sst,latlim,lonlim);
+    
+    save("CMIPdata/allmodels_tpi.mat","CCSM3_TPI", "CCSM3_TPI_filt","CCSM4_TPI", "CCSM4_TPI_filt","CSIRO35_TPI", "CSIRO35_TPI_filt","CSIRO36_TPI", "CSIRO36_TPI_filt","HadGem1_TPI", "HadGem1_TPI_filt","HadGem2_TPI", "HadGem2_TPI_filt","hadsst_TPI", "hadsst_TPI_filt","noaa_TPI", "noaa_TPI_filt");
+else
+    load("CMIPdata/allmodels_tpi.mat","CCSM3_TPI", "CCSM3_TPI_filt","CCSM4_TPI", "CCSM4_TPI_filt","CSIRO35_TPI", "CSIRO35_TPI_filt","CSIRO36_TPI", "CSIRO36_TPI_filt","HadGem1_TPI", "HadGem1_TPI_filt","HadGem2_TPI", "HadGem2_TPI_filt","hadsst_TPI", "hadsst_TPI_filt","noaa_TPI", "noaa_TPI_filt");
+end
 
 % Figure 1
-plot_eigspec(CCSM3_sst,"CCSM3",50);
+%plot_eigspec(CCSM3_sst,"CCSM3",50);
+
+% EOF Figures
+% plot_eofs(CCSM3_eofs,CCSM3_eigvs,4,latlim,lonlim,1.5,"CCSM3");
+% plot_eofs(CCSM4_eofs,CCSM4_eigvs,4,latlim,lonlim,1.5,"CCSM4");
+% 
+% plot_eofs(CSIRO35_eofs,CSIRO35_eigvs,4,latlim,lonlim,1.5,"CSIRO mk3.5");
+% plot_eofs(CSIRO36_eofs,CSIRO36_eigvs,4,latlim,lonlim,1.5,"CSIRO mk3.6");
+% 
+% plot_eofs(HadGem1_eofs,HadGem1_eigvs,4,latlim,lonlim,1.5,"HadGEM1");
+% plot_eofs(HadGem2_eofs,HadGem2_eigvs,4,latlim,lonlim,1.5,"HadGEM2-ES");
+% 
+% plot_eofs(hadsst_eofs,hadsst_eigvs,4,latlim,lonlim,1.5,"HadSST3");
+% plot_eofs(noaa_eofs,noaa_eigvs,4,latlim,lonlim,1.5,"NOAA NCEP OI v2");
+
+% FFT figures
+% plot_fftpcs(CCSM3_pcs,4,"CCSM3");
+% plot_fftpcs(CCSM4_pcs,4,"CCSM4");
+% 
+% plot_fftpcs(CSIRO35_pcs,4,"CSIRO mk3.5");
+% plot_fftpcs(CSIRO36_pcs,4,"CSIRO mk3.6");
+% 
+% plot_fftpcs(HadGem1_pcs,4,"HadGEM1");
+% plot_fftpcs(HadGem2_pcs,4,"HadGEM2-ES");
+% 
+%  plot_fftpcs(hadsst_pcs,4,"HadSST3");
+% plot_fftpcs(noaa_pcs,4,"NOAA NCEP OI v2");
+
+% TPI figures
+plot_tpi(CCSM3_TPI, CCSM3_TPI_filt,"CCSM3",1870*12);
+plot_tpi(CCSM4_TPI, CCSM4_TPI_filt,"CCSM4",1850*12);
+
+plot_tpi(CSIRO35_TPI, CSIRO35_TPI_filt,"CSIRO mk3.5",1871*12);
+plot_tpi(CSIRO36_TPI, CSIRO36_TPI_filt,"CSIRO mk3.6",1850*12);
+
+plot_tpi(HadGem1_TPI, HadGem1_TPI_filt,"HadGEM1",1860*12);
+plot_tpi(HadGem2_TPI, HadGem2_TPI_filt,"HadGEM2-ES",1850*12-1);
+
+plot_tpi(hadsst_TPI,hadsst_TPI_filt,"HadSST3",1850*12);
+plot_tpi(noaa_TPI,noaa_TPI_filt,"NOAA NCEP OI v2",1981*12+8);
+
 
 % end main sequence
 
@@ -109,7 +182,7 @@ function [CSIRO35_sst] = load_CSIRO35(latlim,lonlim)
     mask = repmat(mask, [1,1,original_size(3)]);
     CSIRO35_sst(~mask) = nan;
     
-    save("CMIPdata/CSIRO35_sst.mat", "CSIRO35_sst");
+    %save("CMIPdata/CSIRO35_sst.mat", "CSIRO35_sst");
 
 end
 
@@ -151,7 +224,7 @@ function [HadGem1_sst] = load_HadGem1(latlim,lonlim)
     mask = repmat(mask, [1,1,original_size(3)]);
     HadGem1_sst(~mask) = nan;
     
-    save("CMIPdata/HadGem1_sst.mat", "HadGem1_sst");
+    %save("CMIPdata/HadGem1_sst.mat", "HadGem1_sst");
 
 end
 
@@ -201,7 +274,7 @@ function [CCSM3_sst] = load_CCSM3(latlim,lonlim)
     mask = repmat(mask, [1,1,original_size(3)]);
     CCSM3_sst(~mask) = nan;
     
-    save("CMIPdata/CCSM3_sst.mat", "CCSM3_sst");
+    %save("CMIPdata/CCSM3_sst.mat", "CCSM3_sst");
 
 end
 
@@ -262,7 +335,7 @@ function [CSIRO36_sst] = load_CSIRO36(latlim,lonlim)
     mask = repmat(mask, [1,1,original_size(3)]);
     CSIRO36_sst(~mask) = nan;
     
-    save("CMIPdata/CSIRO36_sst.mat", "CSIRO36_sst");
+    %save("CMIPdata/CSIRO36_sst.mat", "CSIRO36_sst");
 
 end
 
@@ -308,7 +381,7 @@ function [HadGem2_sst] = load_HadGem2(latlim,lonlim)
     mask = repmat(mask, [1,1,original_size(3)]);
     HadGem2_sst(~mask) = nan;
     
-    save("CMIPdata/HadGem2_sst.mat", "HadGem2_sst");
+    %save("CMIPdata/HadGem2_sst.mat", "HadGem2_sst");
 
 end
 
@@ -359,7 +432,78 @@ function [CCSM4_sst] = load_CCSM4(latlim,lonlim)
     mask = repmat(mask, [1,1,original_size(3)]);
     CCSM4_sst(~mask) = nan;
     
-    save("CMIPdata/CCSM4_sst.mat", "CCSM4_sst");
+    %save("CMIPdata/CCSM4_sst.mat", "CCSM4_sst");
+
+end
+
+%% functions for loading obs/reanalysis data
+function [hadsst_sst] = load_hadsst(latlim,lonlim)
+    %% HadSST raw data & ensemble mean
+    ssts1 = ncread("CMIPdata/HadSST.3.1.1.0.median_120-300E_-50-50N_120-300E_-50-50N.nc","sst");
+    
+    original_size = size(ssts1);
+    
+    %% interp to 1.5x1.5
+    % first need a geo reference object
+    R = georefcells(latlim,lonlim,[original_size(2),original_size(1)],'ColumnsStartFrom','south', 'RowsStartFrom','west');
+
+    % define new lat/lon arrays and grids
+    interp_lats = latlim(1):1.5:latlim(2);
+    interp_lons = lonlim(1):1.5:lonlim(2);
+    [interp_lats_grid,interp_lons_grid] = meshgrid(interp_lats,interp_lons);
+
+    % define a place to put the interp results
+    interp_size = size(interp_lats_grid);
+    hadsst_sst = zeros(interp_size(1),interp_size(2),original_size(3));
+
+    % do for all time (can do this in a better way?)
+    for ti=1:original_size(3)
+        curr = squeeze(ssts1(:,:,ti));
+        % runs fasters with these transposes
+        hadsst_sst(:,:,ti) = geointerp(curr',R,interp_lats_grid',interp_lons_grid')';
+    end
+    
+    %% landmask
+    mask = landmask(interp_lats,interp_lons,8,0);
+    
+    mask = repmat(mask, [1,1,original_size(3)]);
+    hadsst_sst(~mask) = nan;
+    
+    %save("CMIPdata/hadsst_sst.mat", "hadsst_sst");
+
+end
+
+function [noaa_sst] = load_noaa(latlim,lonlim)
+    %% NOAA raw data & ensemble mean
+    ssts1 = ncread("CMIPdata/sstoi_v2_120-300E_-50-50N_1981_2020_anom.nc","sst");
+    
+    original_size = size(ssts1);
+    
+    %% interp to 1.5x1.5
+    % first need a geo reference object
+    R = georefcells(latlim,lonlim,[original_size(2),original_size(1)],'ColumnsStartFrom','south', 'RowsStartFrom','west');
+
+    % define new lat/lon arrays and grids
+    interp_lats = latlim(1):1.5:latlim(2);
+    interp_lons = lonlim(1):1.5:lonlim(2);
+    [interp_lats_grid,interp_lons_grid] = meshgrid(interp_lats,interp_lons);
+
+    % define a place to put the interp results
+    interp_size = size(interp_lats_grid);
+    noaa_sst = zeros(interp_size(1),interp_size(2),original_size(3));
+
+    % do for all time (can do this in a better way?)
+    for ti=1:original_size(3)
+        curr = squeeze(ssts1(:,:,ti));
+        % runs fasters with these transposes
+        noaa_sst(:,:,ti) = geointerp(curr',R,interp_lats_grid',interp_lons_grid')';
+    end
+    
+    %% landmask
+    mask = landmask(interp_lats,interp_lons,8,0);
+    
+    mask = repmat(mask, [1,1,original_size(3)]);
+    noaa_sst(~mask) = nan;
 
 end
 
@@ -394,11 +538,43 @@ function plotDatasetSlice(dataset,latlim,lonlim,gridsize,time)
 end
 
 % plot the top N EOFs
-function plot_eofs(eofs,eigvs,N,latlim,lonlim,gdsize)
+function plot_eofs(eofs,eigvs,N,latlim,lonlim,gdsize,model)
     for i=1:N
        plotDatasetSlice(eofs,latlim,lonlim,gdsize,i);
-       title(sprintf("EOF %d, Eigen Value %d",i,eigvs(i)));
+       title(sprintf("%s: EOF %d, (Explains %.2f%% of Variance)",model,i,eigvs(i)));
+       mkdir(sprintf("figs/%s",model));
+       caxis([-1 1])
+       saveas(gcf,sprintf("figs/%s/eof_%d.png",model,i),"png");
     end
+end
+
+% plot the top N FFTs of PCs
+function plot_fftpcs(pc,N,model)
+
+    % init figure and set log scaled x axis
+    figure();
+    set(gca, 'XScale', 'log');
+    hold on;
+    
+    % line styles
+    ls = ["k-","r-","b-","g-","c-","m-"];
+    for i=1:N
+        ff = abs(fft(squeeze(pc(:,i)))); % fourier transform each PC
+        s = size(ff);
+        ff = ff./s(1); % normalize
+        ff = ff(1:floor(s(1)/2)+1); % take the first half (FFT is symmetric, back half is "negative" frequencies)
+        ff(2:end-1) = 2*ff(2:end-1); % correct normalization
+        fs = (0:floor(s(1)/2))/s(1); % define frequency vector
+        fs = 1./fs; % transform into periods
+        semilogx(fs./12, ff, ls(i),'DisplayName',sprintf("PC %d",i)); % note that its plotted against period in years
+        grid on;
+    end
+    xlabel("Period (Years)");
+    ylabel("Magnitude of Fourier Coefficient");
+    title(sprintf("%s: Fourier Transform of the first %d PCs",model,N));
+    xlim([1,inf]); % sets lower bound at 1yr, upper bound auto determined by data
+    legend('Location','northwest');
+    saveas(gcf,sprintf("figs/%s/fft_pc.png",model),"png");
 end
 
 % plot eigenvalue spectrum
@@ -418,8 +594,24 @@ function plot_eigspec(dataset,model,trunc)
 
 end
 
+% plot TPI
+function plot_tpi(TPI,TPI_filt,model,start)
+    f=figure();
+    hold on;
+    s = size(TPI,1);
+    plot(((0:s-1)+start)/12, TPI,"-",'DisplayName',"TPI");
+    plot(((0:s-1)+start)/12, TPI_filt, "-",'DisplayName',"Filtered TPI",'LineWidth',1.2);
+    f.Position = [f.Position(1),f.Position(2),f.Position(3)*1.3,f.Position(4)*(2/3)];
+    xlabel("Year")
+    ylabel("TPI (°C)");
+    title(sprintf("%s: IPO Tripole Index",model));
+    legend('Location','northwest');
+    xlim([start/12,inf]);
+    saveas(gcf,sprintf("figs/%s/tpi.png",model),"png");
+end
+
 %% EOF function
-function [eofs,eigvs] = get_eofs(dataset)
+function [eofs,eigvs,U] = get_eofs(dataset)
     % Based on a presentation by Shane Elipot, UMiami
     
     % we're taking in data as a lat x lon x time  array
@@ -432,7 +624,7 @@ function [eofs,eigvs] = get_eofs(dataset)
     dataset(isnan(dataset)) = 0; % SVD doesn't like NaNs or INFs
 
     dataset = detrend(dataset,'constant');
-    [P,L,~] = svd(dataset,'econ'); % computes the SVD
+    [P,L,U] = svd(dataset,'econ'); % computes the SVD
     eofs = P*L; % EOF matrix
     G = ctranspose(L)*L/(original_size(3)-1); % eigenvalue matrix
     eigvs = diag(G);
@@ -440,7 +632,96 @@ function [eofs,eigvs] = get_eofs(dataset)
     eofs = eofs(:,inds); % rearranges EOFs to match sorted eigenvalues
     eofs = reshape(eofs, original_size);
     
+    
     % normalize EOFs
     eofs = eofs./max(eofs,[],'all');
+
+end
+
+%% TPI function
+function [TPI,TPI_filt] = get_tpi(dataset,latlim,lonlim)
+    % going to "interpolate" to the desired boxes to make life easy
+    
+    % first need a geo reference object
+    original_size = size(dataset);
+    R = georefcells(latlim,lonlim,[original_size(2),original_size(1)],'ColumnsStartFrom','south', 'RowsStartFrom','west');
+
+    % limits of each box
+    latlim1 = [25 45];
+    lonlim1 = [140 215];
+    
+    latlim2 = [-10 10];
+    lonlim2 = [170 270];
+    
+    latlim3 = [-50 -15];
+    lonlim3 = [150 200];
+    
+    dataset(isnan(dataset)) = 0; % mean doesn't like NaNs or INFs
+    
+    %% box one
+    % define new lat/lon arrays and grids
+    interp_lats = latlim1(1):1.5:latlim1(2);
+    interp_lons = lonlim1(1):1.5:lonlim1(2);
+    [interp_lats_grid,interp_lons_grid] = meshgrid(interp_lats,interp_lons);
+
+    % define a place to put the interp results
+    T1 = zeros(original_size(3),1);
+
+    % do for all time (can do this in a better way?)
+    for ti=1:original_size(3)
+        curr = squeeze(dataset(:,:,ti));
+        % runs fasters with these transposes
+        T1(ti) = squeeze(mean(mean(geointerp(curr',R,interp_lats_grid',interp_lons_grid'),1),2));
+    end
+    
+%     temp = geointerp(curr',R,interp_lats_grid',interp_lons_grid')';
+%     temp = repmat(temp,[1,1,3]);
+%     plotDatasetSlice(temp,latlim1,lonlim1,1.5,1);
+    
+    %% box two
+    % define new lat/lon arrays and grids
+    interp_lats = latlim2(1):1.5:latlim2(2);
+    interp_lons = lonlim2(1):1.5:lonlim2(2);
+    [interp_lats_grid,interp_lons_grid] = meshgrid(interp_lats,interp_lons);
+
+    % define a place to put the interp results
+    T2 = zeros(original_size(3),1);
+
+    % do for all time (can do this in a better way?)
+    for ti=1:original_size(3)
+        curr = squeeze(dataset(:,:,ti));
+        % runs fasters with these transposes
+        T2(ti) = squeeze(mean(mean(geointerp(curr',R,interp_lats_grid',interp_lons_grid'),1),2));
+    end
+    
+%     temp = geointerp(curr',R,interp_lats_grid',interp_lons_grid')';
+%     temp = repmat(temp,[1,1,3]);
+%     plotDatasetSlice(temp,latlim2,lonlim2,1.5,1);
+    
+    %% box three
+    % define new lat/lon arrays and grids
+    interp_lats = latlim3(1):1.5:latlim3(2);
+    interp_lons = lonlim3(1):1.5:lonlim3(2);
+    [interp_lats_grid,interp_lons_grid] = meshgrid(interp_lats,interp_lons);
+
+    % define a place to put the interp results
+    T3 = zeros(original_size(3),1);
+
+    % do for all time (can do this in a better way?)
+    for ti=1:original_size(3)
+        curr = squeeze(dataset(:,:,ti));
+        % runs fasters with these transposes
+        T3(ti) = squeeze(mean(mean(geointerp(curr',R,interp_lats_grid',interp_lons_grid'),1),2));
+    end
+    
+%     temp = geointerp(curr',R,interp_lats_grid',interp_lons_grid')';
+%     temp = repmat(temp,[1,1,3]);
+%     plotDatasetSlice(temp,latlim3,lonlim3,1.5,1);
+    
+    %% combine
+    TPI = T2 - 0.5 *(T1+T3);
+    
+    [b,a] = cheby1(4,3,2*pi/(13*12),'low'); % define a 4th order low pass chebyshev filter with frequency 13 years
+    TPI_filt = filter(b,a,TPI);
 
 end
