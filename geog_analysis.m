@@ -18,7 +18,7 @@
 close all;
 reprocess_data=0;
 redo_eofs=0;
-redo_tpi=1;
+redo_tpi=0;
 
 %% main sequence
 
@@ -88,34 +88,34 @@ else
     load("CMIPdata/allmodels_tpi.mat","CCSM3_TPI", "CCSM3_TPI_filt","CCSM4_TPI", "CCSM4_TPI_filt","CSIRO35_TPI", "CSIRO35_TPI_filt","CSIRO36_TPI", "CSIRO36_TPI_filt","HadGem1_TPI", "HadGem1_TPI_filt","HadGem2_TPI", "HadGem2_TPI_filt","hadsst_TPI", "hadsst_TPI_filt","noaa_TPI", "noaa_TPI_filt");
 end
 
-% Figure 1
-%plot_eigspec(CCSM3_sst,"CCSM3",50);
+% Eigenvalue spectrum figure
+plot_eigspec(CCSM3_sst,"CCSM3",50);
 
 % EOF Figures
-% plot_eofs(CCSM3_eofs,CCSM3_eigvs,4,latlim,lonlim,1.5,"CCSM3");
-% plot_eofs(CCSM4_eofs,CCSM4_eigvs,4,latlim,lonlim,1.5,"CCSM4");
-% 
-% plot_eofs(CSIRO35_eofs,CSIRO35_eigvs,4,latlim,lonlim,1.5,"CSIRO mk3.5");
-% plot_eofs(CSIRO36_eofs,CSIRO36_eigvs,4,latlim,lonlim,1.5,"CSIRO mk3.6");
-% 
-% plot_eofs(HadGem1_eofs,HadGem1_eigvs,4,latlim,lonlim,1.5,"HadGEM1");
-% plot_eofs(HadGem2_eofs,HadGem2_eigvs,4,latlim,lonlim,1.5,"HadGEM2-ES");
-% 
-% plot_eofs(hadsst_eofs,hadsst_eigvs,4,latlim,lonlim,1.5,"HadSST3");
-% plot_eofs(noaa_eofs,noaa_eigvs,4,latlim,lonlim,1.5,"NOAA NCEP OI v2");
+plot_eofs(CCSM3_eofs,CCSM3_eigvs,4,latlim,lonlim,1.5,"CCSM3");
+plot_eofs(CCSM4_eofs,CCSM4_eigvs,4,latlim,lonlim,1.5,"CCSM4");
+
+plot_eofs(CSIRO35_eofs,CSIRO35_eigvs,4,latlim,lonlim,1.5,"CSIRO mk3.5");
+plot_eofs(CSIRO36_eofs,CSIRO36_eigvs,4,latlim,lonlim,1.5,"CSIRO mk3.6");
+
+plot_eofs(HadGem1_eofs,HadGem1_eigvs,4,latlim,lonlim,1.5,"HadGEM1");
+plot_eofs(HadGem2_eofs,HadGem2_eigvs,4,latlim,lonlim,1.5,"HadGEM2-ES");
+
+plot_eofs(hadsst_eofs,hadsst_eigvs,4,latlim,lonlim,1.5,"HadSST3");
+plot_eofs(noaa_eofs,noaa_eigvs,4,latlim,lonlim,1.5,"NOAA NCEP OI v2");
 
 % FFT figures
-% plot_fftpcs(CCSM3_pcs,4,"CCSM3");
-% plot_fftpcs(CCSM4_pcs,4,"CCSM4");
-% 
-% plot_fftpcs(CSIRO35_pcs,4,"CSIRO mk3.5");
-% plot_fftpcs(CSIRO36_pcs,4,"CSIRO mk3.6");
-% 
-% plot_fftpcs(HadGem1_pcs,4,"HadGEM1");
-% plot_fftpcs(HadGem2_pcs,4,"HadGEM2-ES");
-% 
-%  plot_fftpcs(hadsst_pcs,4,"HadSST3");
-% plot_fftpcs(noaa_pcs,4,"NOAA NCEP OI v2");
+plot_fftpcs(CCSM3_pcs,4,"CCSM3");
+plot_fftpcs(CCSM4_pcs,4,"CCSM4");
+
+plot_fftpcs(CSIRO35_pcs,4,"CSIRO mk3.5");
+plot_fftpcs(CSIRO36_pcs,4,"CSIRO mk3.6");
+
+plot_fftpcs(HadGem1_pcs,4,"HadGEM1");
+plot_fftpcs(HadGem2_pcs,4,"HadGEM2-ES");
+
+plot_fftpcs(hadsst_pcs,4,"HadSST3");
+plot_fftpcs(noaa_pcs,4,"NOAA NCEP OI v2");
 
 % TPI figures
 plot_tpi(CCSM3_TPI, CCSM3_TPI_filt,"CCSM3",1870*12);
@@ -445,7 +445,7 @@ function [hadsst_sst] = load_hadsst(latlim,lonlim)
     
     %% interp to 1.5x1.5
     % first need a geo reference object
-    R = georefcells(latlim,lonlim,[original_size(2),original_size(1)],'ColumnsStartFrom','south', 'RowsStartFrom','west');
+    R = georefcells(latlim,lonlim,[original_size(2),original_size(1)],'ColumnsStartFrom','north', 'RowsStartFrom','west');
 
     % define new lat/lon arrays and grids
     interp_lats = latlim(1):1.5:latlim(2);
